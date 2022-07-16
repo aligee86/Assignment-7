@@ -1,0 +1,43 @@
+-- How can you isolate (or group) the transactions of each card holder?
+SELECT ch.name, cc.card, t.date, t,amount, m.name AS merchant,
+       mc.name AS category
+FROM transaction AS t
+JOIN credit_card AS cc ON cc.card = t.card
+JOIN card_holder AS ch ON ch.id = cc.id_card_holder
+JOIN merchant AS m ON m.id = t.id_merchant
+JOIN merchant_category AS mc ON mc.id = m.id_merchant_category
+ORDER BY ch.name;
+
+-- Count the transactions that are less than $2.00 per card holder. 
+-- Is there evidence a credit card is being hacked? 
+SELECT COUNT(t.amount) AS "Transactions less than $2.00"
+FROM transaction AS t
+WHERE t.amount < 2;
+
+SELECT*
+FROM transaction as t
+WHERE t.amount < 2
+ORDER BY t.card, t.amount DESC;
+
+--Consider the time period between 7am and 9pm.
+--What are the top 100 highest transactions during this time period?
+SELECT*
+FROM transaction AS t
+WHERE date_part('hour', t.date) >= 7 AND date_part('hour', t.date) <= 9
+ORDER BY amount DESC
+LIMIT 100;
+
+-- No transaction under $2 seen in top 100 transaction during 7:00 to 9:00 AM 
+
+-- Merchants that can be easily hacked with small transactions
+SELECT*
+FROM transaction as t
+WHERE t.amount < 2
+ORDER BY t.id_merchant, t.amount DESC;
+
+-- Top 5 merchants with small transactions 
+SELECT*
+FROM transaction as t
+WHERE t.amount < 2
+ORDER BY amount DESC
+LIMIT 5;

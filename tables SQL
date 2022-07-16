@@ -1,0 +1,59 @@
+CREATE TABLE card_holder (
+  id INT NOT NULL,
+  name VARCHAR(50),
+  PRIMARY KEY (id)
+);
+
+CREATE TABLE credit_card (
+  card VARCHAR(20) NOT NULL, 
+  -- We use VARCHAR(20) instead of BIGINT for card as these 
+  -- numbers are strings and won't be mathematically aggregated
+  id_card_holder INT,
+  FOREIGN KEY (id_card_holder) REFERENCES card_holder (id),
+  PRIMARY KEY (card)
+);
+
+CREATE TABLE merchant_category (
+  id INT NOT NULL,
+  name VARCHAR(15),
+  PRIMARY KEY (id)
+);
+
+CREATE TABLE merchant (
+  id INT NOT NULL,
+  name VARCHAR(50),
+  id_merchant_category INT NOT NULL,
+  FOREIGN KEY (id_merchant_category) REFERENCES merchant_category (id),
+  PRIMARY KEY (id)
+);
+
+CREATE TABLE transaction (
+  id INT NOT NULL,
+  date timestamp NOT NULL,
+  amount float,
+  card VARCHAR(20),
+  id_merchant INT,
+  FOREIGN KEY (card) REFERENCES credit_card (card),
+  FOREIGN KEY (id_merchant) REFERENCES merchant (id),
+  PRIMARY KEY (id)
+);
+
+SELECT FROM transaction AS t
+JOIN credit_card AS cc ON cc.card = t.card::varchar
+JOIN card_holder AS ch ON ch.id = cc.cardholder_id
+JOIN merchant AS m ON m.id = t.id_merchant
+JOIN merchant_category AS mc ON mc.id = m.id_merchant_category
+ORDER BY ch.name;
+ALTER TABLE "credit_card" ADD CONSTRAINT "fk_credit_card_cardholder_id" FOREIGN KEY("cardholder_id")
+REFERENCES "card_holder" ("id");
+
+ALTER TABLE "merchant" ADD CONSTRAINT "fk_merchant_id_merchant_category" FOREIGN KEY("id_merchant_category")
+REFERENCES "merchant_category" ("id");
+
+ALTER TABLE "transaction" ADD CONSTRAINT "fk_transaction_card" FOREIGN KEY("card")
+REFERENCES "credit_card" ("card");
+
+ALTER TABLE "transaction" ADD CONSTRAINT "fk_transaction_id_merchant" FOREIGN KEY("id_merchant")
+REFERENCES "merchant" ("id");
+
+
